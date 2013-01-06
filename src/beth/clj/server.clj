@@ -3,8 +3,9 @@
 ;; from the outside world.
 
 (ns beth.clj.server
-  (:require [aleph.http          :as http]
-            [beth.clj.middleware :as mw]))
+  (:require [aleph.http            :as http]
+            [beth.clj.middleware   :as mw]
+            [clojure.tools.logging :as log]))
 
 
 ;; ## Server Handling
@@ -16,6 +17,8 @@
   ([]
      (start-server :development))
   ([server-mode]
+     (org.apache.log4j.PropertyConfigurator/configure "log4j.properties")
+     (log/info (str "Starting the server in " server-mode " mode."))
      (http/start-http-server
       (mw/chain-middleware server-mode)
       {:port 8080 :websocket true})))
@@ -25,4 +28,5 @@
    server was started."
   [server]
   (when server
+    (log/info "Stopping the server.")
     ((server))))
