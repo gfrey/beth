@@ -16,4 +16,5 @@
                  [org.clojure/tools.namespace "0.2.2"]]
   :main beth.clj.core
   :repl-options {:init-ns beth.clj.repl
-                 :init (def s (run))})
+                 :init (def s (run))}
+  :resource-paths ["resources"])
