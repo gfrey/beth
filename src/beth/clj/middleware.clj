@@ -21,6 +21,15 @@
 ;; The beth configuration handler.
 (def cfg (config/load-config-file "beth.cfg"))
 
+(defn wrap-config-handler
+  "A middleware to associate the configuration to the request, so that
+   it is available to subsequent handlers."
+  [handler]
+  (fn [request]
+    (-> request
+        (assoc :cfg cfg)
+        (handler))))
+
 
 ;; ## Helper Functions
 
@@ -75,5 +84,6 @@
   (-> (get-routes)
       (exception/wrap-exception-handler)
       (logging/wrap-logger)
+      (wrap-config-handler)
       (http/wrap-ring-handler)))
 
