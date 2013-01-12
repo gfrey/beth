@@ -10,9 +10,10 @@
 (ns beth.clj.middleware
   (:use [compojure.core  :only [GET defroutes routes]]
         [compojure.route :only [not-found]])
-  (:require [aleph.http          :as http]
-            [beth.clj.lib.config :as config]
-            [beth.clj.mw.logging :as logging]))
+  (:require [aleph.http            :as http]
+            [beth.clj.lib.config   :as config]
+            [beth.clj.mw.exception :as exception]
+            [beth.clj.mw.logging   :as logging]))
 
 
 ;; ## Configuration Handling
@@ -72,6 +73,7 @@
    to the server mode given (either :production or :development)."
   [server-mode]
   (-> (get-routes)
+      (exception/wrap-exception-handler)
       (logging/wrap-logger)
       (http/wrap-ring-handler)))
 

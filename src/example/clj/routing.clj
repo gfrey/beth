@@ -13,4 +13,5 @@
 (defroutes routes
   (GET "/example" [] {:status 200
                       :headers {"Content-Type" "text/html"}
-                      :body "<h1>Welcome To Example App</h1>"}))
+                      :body "<h1>Welcome To Example App</h1>"})
+  (GET "/exception" [] (throw (Exception. "An example exception."))))
