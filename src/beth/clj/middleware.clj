@@ -13,6 +13,7 @@
   (:require [aleph.http            :as http]
             [beth.clj.lib.config   :as config]
             [beth.clj.mw.exception :as exception]
+            [beth.clj.mw.files     :as files]
             [beth.clj.mw.logging   :as logging]))
 
 
@@ -82,6 +83,7 @@
    to the server mode given (either :production or :development)."
   [server-mode]
   (-> (get-routes)
+      (files/wrap-file-handler)
       (exception/wrap-exception-handler)
       (logging/wrap-logger)
       (wrap-config-handler)
