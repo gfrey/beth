@@ -13,6 +13,8 @@
                                                com.sun.jmx/jmxri]]
                  [midje                       "1.4.0"]
                  [org.clojure/clojure         "1.4.0"]
+                 [org.clojure/clojurescript   "0.0-1552"]
+                 [org.clojure/google-closure-library-third-party "0.0-2029"]
                  [org.clojure/tools.logging   "0.2.4"]
                  [org.clojure/tools.namespace "0.2.2"]]
   :main beth.clj.core

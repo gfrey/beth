@@ -6,4 +6,4 @@
   (:require [beth.clj.server :as server]))
  
 (defn -main [& args]
-  (server/start-server :production))
+  (server/start-server :prod))

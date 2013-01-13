@@ -10,14 +10,15 @@
 (ns beth.clj.middleware
   (:use [compojure.core  :only [GET defroutes routes]]
         [compojure.route :only [not-found]])
-  (:require [aleph.http            :as http]
-            [beth.clj.lib.config   :as config]
-            [beth.clj.lib.template :as template]
-            [beth.clj.mw.error     :as error]
-            [beth.clj.mw.exception :as exception]
-            [beth.clj.mw.files     :as files]
-            [beth.clj.mw.logging   :as logging]
-            [beth.clj.mw.pages     :as pages]))
+  (:require [aleph.http              :as http]
+            [beth.clj.lib.config     :as config]
+            [beth.clj.lib.template   :as template]
+            [beth.clj.mw.development :as development]
+            [beth.clj.mw.error       :as error]
+            [beth.clj.mw.exception   :as exception]
+            [beth.clj.mw.files       :as files]
+            [beth.clj.mw.logging     :as logging]
+            [beth.clj.mw.pages       :as pages]))
 
 
 ;; ## Configuration Handling
@@ -101,11 +102,12 @@
 
 (defn chain-middleware
   "Function that will combine all required middlewares giving respect
-   to the server mode given (either :production or :development)."
+   to the server mode given (either :prod or :dev)."
   [server-mode]
   (-> (get-routes)
       (pages/wrap-page-handler)
       (files/wrap-file-handler)
+      (development/wrap-development-handler server-mode)
       (exception/wrap-exception-handler)
       (error/wrap-error-handler)
       (logging/wrap-logger)
