@@ -3,8 +3,9 @@
 ;; public.
 
 (ns beth.clj.mw.pages
-  (:require [beth.clj.lib.config   :as config]
-            [beth.clj.lib.template :as template]))
+  (:require [beth.clj.lib.config    :as config]
+            [beth.clj.lib.template  :as template]
+            [net.cgrand.enlive-html :as html]))
 
 
 ;; ## Helper Methods
@@ -40,16 +41,59 @@
    :body body})
 
 
+;; ## Fragment Injection
+;; The pages created from templates need to be spiced up with
+;; JavaScript and CSS. This is done in the following function taking
+;; values from the configuration and putting them in the right
+;; locations in the pages.
+
+(def style-node
+  (html/html-snippet "<link type=\"text/css\" rel=\"stylesheet\">"))
+
+(def script-node
+  (html/html-snippet "<script type='text/javascript'></script>"))
+
+(defn inject-css
+  [page css]
+  (->> css
+       (map #(html/transform style-node [:link] (html/set-attr :href %)))
+       (apply html/append)
+       (html/transform page [:head])))
+
+(defn inject-js
+  [page js]
+  (->> js
+       (map #(html/transform script-node [:script] (html/set-attr :src %)))
+       (apply html/append)
+       (html/transform page [:head])))
+
+(defn inject-script
+  [page script]
+  (->> script
+       (map #(html/transform script-node [:script] (html/content %)))
+       (apply html/append)
+       (html/transform page [:body])))
+
+(defn fragment-injection
+  "The dispatcher on the different things to inject."
+  [page cfg mode]
+  (let [{:keys [css js script]} (config/lookup cfg :injector mode)]
+    (-> page
+        (inject-css css)
+        (inject-js js)
+        (inject-script script))))
+
 ;; ## Page Handler
 ;; This will check whether the request matches a page and if so load
 ;; that page and create a proper response.
 
 (defn wrap-page-handler
   "The page handling middleware."
-  [handler]
+  [handler server-mode]
   (fn [{:keys [cfg] :as request}]
     (if-let [page (is-page? request)]
       (-> page
           (template/process-template-file cfg)
+          (fragment-injection cfg server-mode)
           (create-response))
       (handler request))))

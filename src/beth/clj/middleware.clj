@@ -105,7 +105,7 @@
    to the server mode given (either :prod or :dev)."
   [server-mode]
   (-> (get-routes)
-      (pages/wrap-page-handler)
+      (pages/wrap-page-handler server-mode)
       (files/wrap-file-handler)
       (development/wrap-development-handler server-mode)
       (exception/wrap-exception-handler)
