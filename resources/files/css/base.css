@@ -1,0 +1,57 @@
+body {
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+div#wrapper {
+  width: 100%;
+}
+
+div#header, div#footer {
+  -moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+  background-color: #9cbc2c;
+  margin: 0 auto;
+  width: 720px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+div#header {
+  height: 38px;
+}
+
+div#header h1 {
+  margin: 0px;
+  float: left;
+  font-variant: small-caps;
+}
+
+div#header h2 {
+  margin: 0px;
+  padding-top: 5px;
+  padding-right: 3px;
+  float: right;
+  font-variant: small-caps;
+}
+
+div#footer {
+  height: 25px;
+}
+
+div#footer p {
+  padding-top: 3px;
+}
+
+div#content {
+  width: 700px;
+  margin: 0 auto;
+}
+
+.clearfix {
+  clear: both;
+}
+
+.code {
+  font-family: monospace;
+}

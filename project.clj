@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[aleph                       "0.3.0-beta8"]
                  [compojure                   "1.1.3"]
+                 [enlive                      "1.0.1"]
                  [log4j/log4j                 "1.2.16"
                                   :exclusions [javax.mail/mail
                                                javax.jms/jms

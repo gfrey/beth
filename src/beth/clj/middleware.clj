@@ -12,9 +12,11 @@
         [compojure.route :only [not-found]])
   (:require [aleph.http            :as http]
             [beth.clj.lib.config   :as config]
+            [beth.clj.lib.template :as template]
             [beth.clj.mw.exception :as exception]
             [beth.clj.mw.files     :as files]
-            [beth.clj.mw.logging   :as logging]))
+            [beth.clj.mw.logging   :as logging]
+            [beth.clj.mw.pages     :as pages]))
 
 
 ;; ## Configuration Handling
@@ -30,6 +32,24 @@
     (-> request
         (assoc :cfg cfg)
         (handler))))
+
+
+;; ## Response Handling
+;; Responses might need to be cleaned up, for example templates need
+;; to be rendered.
+
+(defn wrap-response-handler
+  "Make sure that responses containing templates are
+   rendered. Template rendering is required so late in the request
+   processing chain, as there might be additional steps required to be
+   done to the html document, like injection of JavaScript resources."
+  [handler]
+  (fn [request]
+    (let [{:keys [body] :as response} (handler request)]
+      (if (= (get-in response [:headers "Content-Type"]) "text/html")
+        (->> (template/render body)
+             (assoc response :body))
+        response))))
 
 
 ;; ## Helper Functions
@@ -83,9 +103,11 @@
    to the server mode given (either :production or :development)."
   [server-mode]
   (-> (get-routes)
+      (pages/wrap-page-handler)
       (files/wrap-file-handler)
       (exception/wrap-exception-handler)
       (logging/wrap-logger)
+      (wrap-response-handler)
       (wrap-config-handler)
       (http/wrap-ring-handler)))
 
