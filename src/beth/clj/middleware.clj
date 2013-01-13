@@ -23,17 +23,15 @@
 
 ;; ## Configuration Handling
 
-;; The beth configuration handler.
-(def cfg (config/load-config-file "beth.cfg"))
-
 (defn wrap-config-handler
   "A middleware to associate the configuration to the request, so that
    it is available to subsequent handlers."
   [handler]
-  (fn [request]
-    (-> request
-        (assoc :cfg cfg)
-        (handler))))
+  (let [cfg (config/load-config-file "beth.cfg")]
+    (fn [request]
+      (-> request
+          (assoc :cfg cfg)
+          (handler)))))
 
 
 ;; ## Response Handling
@@ -83,7 +81,8 @@
    configuration. To retrieve them the ns-publics (list of public
    bindings of a namespace) is used."
   []
-  (let [c     (config/lookup cfg :app.routes)
+  (let [cfg   (config/load-config-file "beth.cfg")
+        c     (config/lookup cfg :app.routes)
         [n b] (clojure.string/split c #"/")]
     (require (symbol n))
     (-> (symbol n)

@@ -82,13 +82,13 @@
    it to the key. Throws an exception if the key can not be found in
    the configuration."
   ([cfg key]
-   	(if-let [result (clojure.core/get cfg key)]
-      result
-      (throw
-       (Exception.
-        (str key " not configured!")))))
+     (if-let [result (clojure.core/get cfg key)]
+       result
+       (throw
+        (Exception.
+         (str key " not configured!")))))
   ([cfg key mode]
-   (let [keyname  (name key)
-         modename (name mode)
-         full-key (keyword (str keyname "." modename))]
-     (lookup cfg full-key))))
+     (let [keyname  (name key)
+           modename (name mode)
+           full-key (keyword (str keyname "." modename))]
+       (lookup cfg full-key))))
