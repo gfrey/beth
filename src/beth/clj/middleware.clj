@@ -13,6 +13,7 @@
   (:require [aleph.http            :as http]
             [beth.clj.lib.config   :as config]
             [beth.clj.lib.template :as template]
+            [beth.clj.mw.error     :as error]
             [beth.clj.mw.exception :as exception]
             [beth.clj.mw.files     :as files]
             [beth.clj.mw.logging   :as logging]
@@ -70,7 +71,7 @@
 ;; The routing for requests to beth.
 (defroutes system-routes
   (GET "/" [] (response 200 "<h1>Welcome To Beth</h1>"))
-  (not-found (response 404 :body "Not found!")))
+  (not-found  {:status 404}))
 
 ;; The application routes are loaded from the file given in the
 ;; configuration.
@@ -106,6 +107,7 @@
       (pages/wrap-page-handler)
       (files/wrap-file-handler)
       (exception/wrap-exception-handler)
+      (error/wrap-error-handler)
       (logging/wrap-logger)
       (wrap-response-handler)
       (wrap-config-handler)

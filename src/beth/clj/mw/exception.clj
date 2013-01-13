@@ -28,6 +28,4 @@
       (handler request)
       (catch Exception e
         (log-exception request e)
-        {:status 500
-         :exception e
-         :message "Internal server error!"}))))
+        {:status 500 :exception e}))))
