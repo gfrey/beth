@@ -24,8 +24,8 @@
 (defn is-page?
   "Validates whether the given request asks for a page that is stored
    in pages directory specified in the configuration."
-  [{:keys [uri cfg]}]
-  (let [root (-> (config/lookup cfg :path.pages)
+  [{:keys [uri]}]
+  (let [root (-> (config/lookup :path.pages)
                  (clojure.java.io/resource))
         path (subs uri 1)
         file (get-page root path)]
@@ -76,8 +76,8 @@
 
 (defn fragment-injection
   "The dispatcher on the different things to inject."
-  [page cfg mode]
-  (let [{:keys [css js script]} (config/lookup cfg :injector mode)]
+  [page mode]
+  (let [{:keys [css js script]} (config/lookup :injector mode)]
     (-> page
         (inject-css css)
         (inject-js js)
@@ -90,10 +90,10 @@
 (defn wrap-page-handler
   "The page handling middleware."
   [handler server-mode]
-  (fn [{:keys [cfg] :as request}]
+  (fn [request]
     (if-let [page (is-page? request)]
       (-> page
-          (template/process-template-file cfg)
-          (fragment-injection cfg server-mode)
+          (template/process-template-file)
+          (fragment-injection server-mode)
           (create-response))
       (handler request))))

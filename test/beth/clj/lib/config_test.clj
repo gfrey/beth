@@ -63,11 +63,13 @@
 ;; assumption ass the extended key-value pair loaded above is checked
 ;; to be equal to the used configuration).
 (deftest lookup-cfg-option-test
-  (facts
-   (lookup cfg :key1) => 1
-   (lookup cfg :key2) => [1 2 3]
-   (lookup cfg :key3) => #{:a :b :c}
-   (lookup cfg :key4 :a) => "4a"
-   (lookup cfg :key4 :b) => "4b"
-   (lookup cfg :key4 :c) => (throws Exception ":key4.c not configured!")
-   (lookup cfg :missing) => (throws Exception ":missing not configured!")))
+  (against-background
+   [(around :facts (with-loaded-config cfg ?form))]
+   (facts
+    (lookup :key1) => 1
+    (lookup :key2) => [1 2 3]
+    (lookup :key3) => #{:a :b :c}
+    (lookup :key4 :a) => "4a"
+    (lookup :key4 :b) => "4b"
+    (lookup :key4 :c) => (throws Exception ":key4.c not configured!")
+    (lookup :missing) => (throws Exception ":missing not configured!"))))

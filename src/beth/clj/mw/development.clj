@@ -15,8 +15,8 @@
   "From all the ClojureScript sources determine the one that changed
    last. If that is newer than the main build artefact (the dependency
    file) than a rebuild is required."
-  [cfg]
-  (->> [(config/lookup cfg :cljs-src)]
+  []
+  (->> [(config/lookup :cljs-src)]
        (map clojure.java.io/file)
        (mapcat file-seq)
        (filter #(.isFile %))
@@ -28,14 +28,13 @@
    and a recompile is necessary."
   [handler]
   (fn [request]
-    (let [cfg   (:cfg request)
-          odir  (config/lookup cfg :cljs-dir :dev)
-          ofile (config/lookup cfg :cljs-file :dev)]
+    (let [odir  (config/lookup :cljs-dir :dev)
+          ofile (config/lookup :cljs-file :dev)]
       (when (< (-> (str odir "/" ofile)
                    (clojure.java.io/file)
                    (.lastModified))
-               (get-latest-change cfg))
-        (cljsc/build cfg :dev))
+               (get-latest-change))
+        (cljsc/build :dev))
       (handler request))))
 
 

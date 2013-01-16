@@ -4,6 +4,26 @@
 (ns beth.clj.lib.config)
 
 
+;; ## Configuration Handling
+;; The following binding and macro are required to make the
+;; configuration available to the different functions of the template
+;; processing.
+
+;; A binding for the configuration.
+(def ^:dynamic *config* nil)
+
+;; Macros to make the configuration available to the subsequent
+;; methods. One with the already loaded configuration, the other with
+;; the file to load.
+
+(defmacro with-loaded-config [cfg & forms]
+  `(binding [*config* ~cfg]
+     ~@forms))
+
+(defmacro with-config [filename & forms]
+  `(binding [*config* (load-config-file ~filename)]
+     ~@forms))
+
 ;; ## Configuration File Loading
 ;; The following functions are used to load configuration files.
 
@@ -81,14 +101,14 @@
   "Get the key from the configuration hash-map. If a mode is given add
    it to the key. Throws an exception if the key can not be found in
    the configuration."
-  ([cfg key]
-     (if-let [result (clojure.core/get cfg key)]
+  ([key]
+     (if-let [result (clojure.core/get *config* key)]
        result
        (throw
         (Exception.
          (str key " not configured!")))))
-  ([cfg key mode]
+  ([key mode]
      (let [keyname  (name key)
            modename (name mode)
            full-key (keyword (str keyname "." modename))]
-       (lookup cfg full-key))))
+       (lookup full-key))))

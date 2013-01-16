@@ -55,10 +55,10 @@
                         (html/content "")))))
 
 (defn handle-errors
-  [{:keys [status] :as response} cfg]
-  (let [snippets-path (config/lookup cfg :path.snippets)
+  [{:keys [status] :as response}]
+  (let [snippets-path (config/lookup :path.snippets)
         template      (-> "error/error-page.html"
-                          (template/process-template-file cfg)
+                          (template/process-template-file)
                           (insert-reason status))]
     (-> response
         (assoc :headers {"Content-Type" "text/html"})
@@ -66,8 +66,8 @@
 
 (defn wrap-error-handler
   [handler]
-  (fn [{:keys [cfg] :as request}]
+  (fn [request]
     (let [{:keys [status] :as response} (handler request)]
       (if (#{404 500} status)
-        (handle-errors response cfg)
+        (handle-errors response)
         response))))

@@ -70,8 +70,8 @@
 (defn is-file?
   "Creates a function that returns a java.io.File object if the given path
    is within the directory returned by the src-dir funtion."
-  [{:keys [cfg uri]}]
-  (let [root (-> (config/lookup cfg :path.files)
+  [{:keys [uri]}]
+  (let [root (-> (config/lookup :path.files)
                  (clojure.java.io/resource))
         path (subs uri 1)
         file (clojure.java.io/file root path)]

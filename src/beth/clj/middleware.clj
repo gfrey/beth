@@ -24,14 +24,16 @@
 ;; ## Configuration Handling
 
 (defn wrap-config-handler
-  "A middleware to associate the configuration to the request, so that
-   it is available to subsequent handlers."
+  "A middleware to make the configuration available for to subsequent
+   handlers. This is done inside config using a dynamic
+   binding. Please note that the file is loaded only once during the
+   call of the wrapper function. Request handling will use this
+   resource for binding."
   [handler]
   (let [cfg (config/load-config-file "beth.cfg")]
     (fn [request]
-      (-> request
-          (assoc :cfg cfg)
-          (handler)))))
+      (config/with-loaded-config cfg
+        (handler request)))))
 
 
 ;; ## Response Handling
@@ -81,8 +83,8 @@
    configuration. To retrieve them the ns-publics (list of public
    bindings of a namespace) is used."
   []
-  (let [cfg   (config/load-config-file "beth.cfg")
-        c     (config/lookup cfg :app.routes)
+  (let [c     (config/with-config "beth.cfg"
+                (config/lookup :app.routes))
         [n b] (clojure.string/split c #"/")]
     (require (symbol n))
     (-> (symbol n)

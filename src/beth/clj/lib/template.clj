@@ -17,21 +17,6 @@
 (declare process-template)
 
 
-;; ## Configuration Handling
-;; The following binding and macro are required to make the
-;; configuration available to the different functions of the template
-;; processing.
-
-;; A binding for the configuration.
-(def ^:dynamic *config* nil)
-
-;; A macro to make the configuration available to the subsequent
-;; methods.
-(defmacro with-config [cfg & forms]
-  `(binding [*config* ~cfg]
-     ~@forms))
-
-
 ;; ## Helper Functions
 ;; The following helper functions are required for the acutal black
 ;; magic done in the following.
@@ -39,7 +24,7 @@
 (defn load-template
   "Load the template if it exists."
   [filename]
-  (let [base-dir (-> (config/lookup *config* :path.snippets)
+  (let [base-dir (-> (config/lookup :path.snippets)
                      (clojure.java.io/resource))
         file     (clojure.java.io/file base-dir filename)]
     (if (.exists file)
@@ -152,10 +137,9 @@
    path fragment (without the part defined in the template-root config
    variable) contained in the request and get the processed template in
    return."
-  [filename cfg]
-  (with-config cfg
-    (-> (load-template filename)
-        (process-template))))
+  [filename]
+  (-> (load-template filename)
+      (process-template)))
 
 (defn render
   "Will render the page nodes to an actual html string that can be
