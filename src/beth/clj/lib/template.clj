@@ -137,9 +137,10 @@
    path fragment (without the part defined in the template-root config
    variable) contained in the request and get the processed template in
    return."
-  [filename]
-  (-> (load-template filename)
-      (process-template)))
+  [file]
+  (if (.isFile file)
+    (-> (html/html-resource file)
+        (process-template))))
 
 (defn render
   "Will render the page nodes to an actual html string that can be
