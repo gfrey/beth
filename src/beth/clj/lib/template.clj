@@ -123,9 +123,7 @@
                                        (html/substitute child))
                  (rest children))
           outer)))
-    (throw (Exception. (str "Syntax error in template. "
-                            "Only one _within tag allowed, that "
-                            "must be the first tag in the file.")))))
+    (throw (Exception. (str "Erroneous usage of _within tag.")))))
 
 (defn handle-within
   "If the page is wrapped within another page reflect that."
