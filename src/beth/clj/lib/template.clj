@@ -46,9 +46,9 @@
   (-> page-nodes
       (html/at [:.example-element]
                nil)
-      (html/transform [:.example-content]
+      (html/transform [:.example-data]
                       (html/do-> (html/content nil)
-                                 (html/remove-class "example-content")))))
+                                 (html/remove-class "example-data")))))
 
 
 ;; ## Handle Includes
