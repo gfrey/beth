@@ -30,7 +30,7 @@
         path (subs uri 1)
         file (get-page root path)]
     (when (.isFile file)
-      file)))
+      (str file))))
 
 (defn create-response
   "Creates a dummy response with the body set to the given file and status

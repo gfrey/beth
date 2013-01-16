@@ -57,9 +57,7 @@
 (defn handle-errors
   [{:keys [status] :as response} cfg]
   (let [snippets-path (config/lookup cfg :path.snippets)
-        error-page    (-> (clojure.java.io/resource snippets-path)
-                          (clojure.java.io/file "error/error-page.html"))
-        template      (-> error-page
+        template      (-> "error/error-page.html"
                           (template/process-template-file cfg)
                           (insert-reason status))]
     (-> response

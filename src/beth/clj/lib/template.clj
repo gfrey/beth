@@ -36,20 +36,15 @@
 ;; The following helper functions are required for the acutal black
 ;; magic done in the following.
 
-(defn get-file
-  "Will return a java.io.File object set to path taking the configured
-   template source path into account."
-  [path]
-  (let [base-dir (-> (config/lookup *config* :path.snippets)
-                     (clojure.java.io/resource))]
-    (clojure.java.io/file base-dir path)))
-
 (defn load-template
   "Load the template if it exists."
-  [file]
-  (if (.exists file)
-    (html/html-resource file)
-    (throw (Exception. (format "Template %s does not exist!" file)))))
+  [filename]
+  (let [base-dir (-> (config/lookup *config* :path.snippets)
+                     (clojure.java.io/resource))
+        file     (clojure.java.io/file base-dir filename)]
+    (if (.exists file)
+      (html/html-resource file)
+      (throw (Exception. (format "Template \"%s\" does not exist!" filename))))))
 
 (defn unwrap-html-body
   "As enlive adds html and body tags to templates (if they don't have
@@ -86,9 +81,8 @@
 (defn handle-include
   "Process the actual include node."
   [html-node]
-  (let [file (-> html-node :attrs :file get-file)]
-    (-> file
-        (load-template)
+  (let [filename (-> html-node :attrs :file)]
+    (-> (load-template filename)
         (process-template)
         (unwrap-html-body))))
 
@@ -120,8 +114,9 @@
   [[node & r]]
   (if (and (nil? r)                  ; there is one node
            (= (:tag node) :_within)) ; with tag _within
-    (let [file (-> node :attrs :file get-file)]
-      (loop [outer    (-> file load-template process-template)
+    (let [filename (-> node :attrs :file)]
+      (loop [outer    (-> (load-template filename)
+                          (process-template))
              children (->> node :content (filter map?))]
         (if-let [child (first children)]
           (recur (html/transform outer (get-node-selector child)
@@ -159,10 +154,9 @@
    path fragment (without the part defined in the template-root config
    variable) contained in the request and get the processed template in
    return."
-  [file cfg]
+  [filename cfg]
   (with-config cfg
-    (-> file
-        (load-template)
+    (-> (load-template filename)
         (process-template))))
 
 (defn render
