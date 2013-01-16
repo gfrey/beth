@@ -50,9 +50,9 @@
   "As enlive adds html and body tags to templates (if they don't have
    them) we need to strip them in certain situations."
   [html-nodes]
-  (-> html-nodes
-      (html/transform [:html] html/unwrap)
-      (html/transform [:body] html/unwrap)))
+  (html/at html-nodes
+           [:html] html/unwrap
+           [:body] html/unwrap))
 
 (defn remove-example-data
   "This is required for snippets to remove example data used to show
