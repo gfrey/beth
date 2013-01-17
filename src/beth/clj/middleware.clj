@@ -8,8 +8,6 @@
 ;; after modifying it.
 
 (ns beth.clj.middleware
-  (:use [compojure.core  :only [GET defroutes routes]]
-        [compojure.route :only [not-found]])
   (:require [aleph.http              :as http]
             [beth.clj.lib.config     :as config]
             [beth.clj.lib.template   :as template]
@@ -18,7 +16,8 @@
             [beth.clj.mw.exception   :as exception]
             [beth.clj.mw.files       :as files]
             [beth.clj.mw.logging     :as logging]
-            [beth.clj.mw.pages       :as pages]))
+            [beth.clj.mw.pages       :as pages]
+            [net.cgrand.moustache    :as mou]))
 
 
 ;; ## Configuration Handling
@@ -66,13 +65,24 @@
       :headers {"Content-Type" "text/html"}
       content-key content}))
 
+(defn get-snippet
+  [path]
+  (let [root (-> (config/lookup :path.snippets)
+                 (clojure.java.io/resource))
+        file (clojure.java.io/file root path)]
+    (if (.isFile file)
+      (response 200 (template/process-template-file file))
+      (response 404 (format "Snippet %s does not exist!" path)))))
+
 
 ;; ## Route Dispatching
 
 ;; The routing for requests to beth.
-(defroutes system-routes
-  (GET "/" [] (response 200 "<h1>Welcome To Beth</h1>"))
-  (not-found  {:status 404}))
+(def system-routes
+  (mou/app ["snippets" & path]
+           (fn [_] (->> path
+                       (clojure.string/join "/")
+                       (get-snippet)))))
 
 ;; The application routes are loaded from the file given in the
 ;; configuration.
@@ -92,8 +102,9 @@
         (get (symbol b)))))
 
 (defn get-routes []
-  (routes (get-application-routes)
-          system-routes))
+  (let [app-routes (get-application-routes)]
+    (mou/app ["app" &] app-routes
+             [&]       system-routes)))
 
 
 ;; ## Middleware Chaining
