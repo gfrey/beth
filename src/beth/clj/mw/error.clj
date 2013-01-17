@@ -45,23 +45,23 @@
    511 "Network Authentication Required"})
 
 (defn insert-reason
-  [page status]
-  (let [message (get http-status-codes status)
-        reason  (format "%s - %s" status message)]
+  [page message status]
+  (let [label  (get http-status-codes status)
+        reason (format "%s - %s" status label)]
     (-> page
         (html/transform [:h1#error-description]
                         (html/content reason))
         (html/transform [:div#error-message]
-                        (html/content "")))))
+                        (html/content message)))))
 
 (defn handle-errors
-  [{:keys [status] :as response}]
+  [{:keys [message status] :as response}]
   (let [snippets-path (config/lookup :path.snippets)
         error-page    (-> (clojure.java.io/resource snippets-path)
                           (clojure.java.io/file "error/error-page.html"))
         template      (-> error-page
                           (template/process-template-file)
-                          (insert-reason status))]
+                          (insert-reason message status))]
     (-> response
         (assoc :headers {"Content-Type" "text/html"})
         (assoc :body template))))

@@ -109,7 +109,7 @@
       (pages/wrap-page-handler server-mode)
       (files/wrap-file-handler)
       (development/wrap-development-handler server-mode)
-      (exception/wrap-exception-handler)
+      (exception/wrap-exception-handler server-mode)
       (error/wrap-error-handler)
       (logging/wrap-logger)
       (wrap-response-handler)

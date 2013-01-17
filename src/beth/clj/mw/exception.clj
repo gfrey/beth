@@ -3,7 +3,9 @@
 ;; can be used to display some more information in development mode.
 
 (ns beth.clj.mw.exception
-  (:require [clojure.tools.logging  :as log]))
+  (:require [beth.clj.lib.config    :as config]
+            [clojure.tools.logging  :as log]
+            [net.cgrand.enlive-html :as html]))
 
 
 ;; ## Helper Methods
@@ -16,16 +18,37 @@
              (format "Exception handling %s request to %s"
                      request-method uri)))
 
+(config/with-config "beth.cfg"
+  (html/defsnippet stacktrace
+    (format "%s/stacktrace.html" (config/lookup :path.snippets))
+    [[:div#content]]
+    [exception]
+    [:h3#message]    (html/content (.getMessage exception))
+    [:ul#strace :li] (html/clone-for
+                      [e (.getStackTrace exception)]
+                      [:span.source] (html/content
+                                      (clojure.string/replace
+                                       (.getClassName e)
+                                       #"\$" "/"))
+                      [:span.file]   (html/content
+                                      (.getFileName e))
+                      [:span.line]   (html/content
+                                      (str (.getLineNumber e))))))
+
 
 ;; ## Exception Handler
 
 (defn wrap-exception-handler
   "An exception catching (and printing) middleware that is only loaded
    in development mode."
-  [handler]
+  [handler server-mode]
   (fn [request]
     (try
       (handler request)
       (catch Exception e
         (log-exception request e)
-        {:status 500 :exception e}))))
+        {:status    500
+         :exception e
+         :message   (if (= server-mode :dev)
+                      (stacktrace e)
+                      "")}))))
