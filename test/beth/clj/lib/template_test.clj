@@ -15,7 +15,7 @@
 (deftest load-template-test
   (facts
    (-> (load-template "test.html")
-       (html/select [:html :body :div]))
+       (html/select [:html :body :div#content]))
    => [{:tag     :div
         :attrs   {:id "content"}
         :content ["foobar"]}]
@@ -42,13 +42,12 @@
 
 (deftest handle-includes-test
   (facts
-   ;; The include.html file contains two includes of the test.html (a
-   ;; paragraph containing "foobar").
    (-> (load-template "include.html")
        (handle-includes)
-       (html/select [:html :body :div#wrapper :div]))
-   => [{:tag :div, :attrs {:id "content"}, :content ["foobar"]}
-       {:tag :div, :attrs {:id "content"}, :content ["foobar"]}]
+       (html/select [:div#wrapper :> :div]))
+   => [{:tag :div :attrs {:id "header"}  :content ["header"]}
+       {:tag :div :attrs {:id "content"} :content ["foobar"]}
+       {:tag :div :attrs {:id "footer"}  :content ["footer"]}]
 
    (-> (html/html-snippet "<_include file=\"missing.html\" />")
        (handle-includes))
@@ -64,7 +63,7 @@
   (facts
    (-> (load-template "within.html")
        (handle-within)
-       (html/select [:html :body :div]))
+       (html/select [:html :body :div#content]))
    => [{:tag :div, :attrs {:id "content"}, :content ["killroy"]}]
 
    (-> (html/html-snippet (:not-first erroneous-within-statements))
@@ -74,3 +73,30 @@
    (-> (html/html-snippet (:not-one erroneous-within-statements))
        (handle-within))
    => (throws Exception "Erroneous usage of _within tag.")))
+
+(deftest handle-mixed-templates-test
+  (facts "Template without \"within\" or \"include\" tag."
+         (-> (load-template "test.html")
+             (process-template)
+             (html/select [:body :> :div]))
+         => [{:tag :div :attrs {:id "header"}  :content ["header"]}
+             {:tag :div :attrs {:id "content"} :content ["foobar"]}
+             {:tag :div :attrs {:id "footer"}  :content ["footer"]}])
+
+  (facts "Templates with \"within\" and \"include\" tags intermixed."
+         (-> (load-template "mixed_within.html")
+             (process-template)
+             (html/select [:body :> :div]))
+         => [{:tag :div :attrs {:id "header"}  :content ["header"]}
+             {:tag :div :attrs {:id "content"} :content [{:tag   :p
+                                                          :attrs nil
+                                                          :content ["killroy"]}
+                                                         "\n"]}
+             {:tag :div :attrs {:id "footer"}  :content ["footer"]}]
+
+         (-> (load-template "mixed_include.html")
+             (process-template)
+             (html/select [:body :> :div#wrapper :> :div]))
+         => [{:tag :div :attrs {:id "header"}  :content ["header"]}
+             {:tag :div :attrs {:id "content"} :content ["killroy"]}
+             {:tag :div :attrs {:id "footer"}  :content ["footer"]}]))
