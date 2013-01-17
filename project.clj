@@ -4,6 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[aleph                       "0.3.0-beta8"]
+                 [com.cemerick/piggieback     "0.0.2"]
                  [compojure                   "1.1.3"]
                  [enlive                      "1.0.1"]
                  [log4j/log4j                 "1.2.16"
@@ -19,5 +20,6 @@
                  [org.clojure/tools.namespace "0.2.2"]]
   :main beth.clj.core
   :repl-options {:init-ns beth.clj.repl
-                 :init (def s (run))}
+                 :init (def s (run))
+                 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
   :resource-paths ["resources"])

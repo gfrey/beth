@@ -6,12 +6,21 @@
 ;; clojure.tools/namespace.repl package.
 
 (ns beth.clj.repl
-  (:require [clojure.repl                 :as cRepl]
+  (:require [cemerick.piggieback          :as pback]
+            [cljs.repl                    :as cljsRepl]
+            [cljs.repl.browser            :as cljsBrowser]
+            [clojure.repl                 :as cRepl]
             [clojure.tools.namespace.repl :as nRepl]))
 
 ;; Don't reload this namespace! This makes sure the refresh function
 ;; works properly.
 (nRepl/disable-reload!)
+
+(defn cljs-repl
+  []
+  (pback/cljs-repl
+   :repl-env (doto (cljsBrowser/repl-env :port 9000)
+               cljsRepl/-setup)))
 
 (defn refresh
   "Use this function to refresh the server, for example after changing
