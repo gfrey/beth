@@ -3,8 +3,10 @@
 ;; applications this middleware will add helpers in development mode.
 
 (ns beth.clj.mw.development
-  (:require [beth.clj.lib.cljsc  :as cljsc]
-            [beth.clj.lib.config :as config]))
+  (:require [beth.clj.lib.cljsc     :as cljsc]
+            [beth.clj.lib.config    :as config]
+            [beth.clj.lib.template  :as template]
+            [net.cgrand.enlive-html :as html]))
 
 
 ;; ## ClojureScript Compilation
@@ -38,6 +40,48 @@
       (handler request))))
 
 
+;; ## Snippet Handling
+;; Snippets are fragments of templates that must be served in
+;; development mode so that the designer has a possibility to review
+;; them.
+
+;; TODO This should be generalized!
+(defn- create-response
+  [body]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body body})
+
+;; TODO Maybe it'd be better to generate some default context, instead
+;;      using a page.
+(defn get-snippet
+  "Load the snippet for the given path, put it into the correct
+   environment, and return an proper response."
+  [path]
+  (let [root (-> (config/lookup :path.snippets)
+                 (clojure.java.io/resource))
+        file (clojure.java.io/file root path)]
+    (if (.isFile file)
+      (-> (html/html-resource file)
+          (html/at [:html :body] (html/wrap :_within {:file "application.html"})
+                   [:html :body] (html/wrap :div {:id "content"}))
+          (template/process-template)
+          (create-response))
+      (throw (Exception. (format "Snippet %s does not exist!" path))))))
+
+(defn wrap-snippet-handler
+  "The middleware that will fetch requests for snippets and return
+   them accordingly."
+  [handler]
+  (fn [request]
+    (let [uri  (:uri request)
+          path (->> (clojure.string/split uri #"/")
+                    (remove empty?))]
+      (if (= (first path) "snippet")
+        (get-snippet (clojure.string/join "/" (rest path)))
+        (handler request)))))
+
+
 ;; ## Development Middlewares
 ;; This handler will add stuff to the middleware chain that is
 ;; required during development. That is the reason why the server-mode
@@ -50,5 +94,6 @@
   [handler server-mode]
   (if (#{:dev} server-mode)
     (-> handler
+        (wrap-snippet-handler)
         (wrap-cljs-compiler))
     handler))
