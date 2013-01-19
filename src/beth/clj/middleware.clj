@@ -14,10 +14,10 @@
             [beth.clj.mw.development :as development]
             [beth.clj.mw.error       :as error]
             [beth.clj.mw.exception   :as exception]
-            [beth.clj.mw.files       :as files]
             [beth.clj.mw.logging     :as logging]
             [beth.clj.mw.pages       :as pages]
-            [net.cgrand.moustache    :as mou]))
+            [net.cgrand.moustache    :as mou]
+            [ring.middleware.resource :as resource]))
 
 
 ;; ## Configuration Handling
@@ -118,7 +118,7 @@
   [server-mode]
   (-> (get-routes)
       (pages/wrap-page-handler server-mode)
-      (files/wrap-file-handler)
+      (resource/wrap-resource "files")
       (development/wrap-development-handler server-mode)
       (exception/wrap-exception-handler server-mode)
       (error/wrap-error-handler)

@@ -17,7 +17,8 @@
                  [org.clojure/clojurescript   "0.0-1552"]
                  [org.clojure/google-closure-library-third-party "0.0-2029"]
                  [org.clojure/tools.logging   "0.2.4"]
-                 [org.clojure/tools.namespace "0.2.2"]]
+                 [org.clojure/tools.namespace "0.2.2"]
+                 [ring/ring-core              "1.1.7"]]
   :main beth.clj.core
   :repl-options {:init-ns beth.clj.repl
                  :init (def s (run))
