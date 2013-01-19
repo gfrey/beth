@@ -69,7 +69,7 @@
           (create-response))
       (throw (Exception. (format "Snippet %s does not exist!" path))))))
 
-(defn wrap-snippet-handler
+(defn wrap-preview-handler
   "The middleware that will fetch requests for snippets and return
    them accordingly."
   [handler]
@@ -77,7 +77,7 @@
     (let [uri  (:uri request)
           path (->> (clojure.string/split uri #"/")
                     (remove empty?))]
-      (if (= (first path) "snippet")
+      (if (= (first path) "preview")
         (get-snippet (clojure.string/join "/" (rest path)))
         (handler request)))))
 
@@ -94,6 +94,6 @@
   [handler server-mode]
   (if (#{:dev} server-mode)
     (-> handler
-        (wrap-snippet-handler)
+        (wrap-preview-handler)
         (wrap-cljs-compiler))
     handler))
