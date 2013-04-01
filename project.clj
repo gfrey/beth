@@ -21,6 +21,6 @@
                  [ring/ring-core              "1.2.0-beta2"]]
   :main beth.clj.core
   :repl-options {:init-ns beth.clj.repl
-                 :init (def s (run))
+                 :init (beth.clj.repl/start)
                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
   :resource-paths ["resources"])

@@ -6,7 +6,8 @@
 ;; clojure.tools/namespace.repl package.
 
 (ns beth.clj.repl
-  (:require [cemerick.piggieback          :as pback]
+  (:require [beth.clj.server]
+            [cemerick.piggieback          :as pback]
             [cljs.repl                    :as cljsRepl]
             [cljs.repl.browser            :as cljsBrowser]
             [clojure.repl                 :as cRepl]
@@ -16,27 +17,38 @@
 ;; works properly.
 (nRepl/disable-reload!)
 
+(def server (atom nil))
+
 (defn cljs-repl
   []
   (pback/cljs-repl
    :repl-env (doto (cljsBrowser/repl-env :port 9000)
                cljsRepl/-setup)))
 
-(defn refresh
+(defn- save-server-handle
+  "Internal function to manage the server handle. It is stored in an
+   atom to not make the user fiddle with it."
+  [handler]
+  (if (fn? handler)
+      (swap! server (constantly handler))
+      (cRepl/pst)))
+
+(defn restart
   "Use this function to refresh the server, for example after changing
    the clojure part of the application. Needs to be given the already
    running server to work properly."
-  [server]
-  (when server
-    (server))
-  (let [new-server (nRepl/refresh :after 'beth.clj.server/start-server)]
-    (if (fn? new-server)
-      new-server
-      (cRepl/pst))))
+  []
+  (when @server
+    (@server))
+  (-> (nRepl/refresh :after 'beth.clj.server/start-server)
+      (save-server-handle)))
 
-(defn run
+(defn start
   "Run the server and print usage information."
   []
-  (println "Starting the server. To refresh enter '(def s (refresh s))'.")
-  (refresh nil))
-
+  (when @server
+    (throw
+     (Exception. "Server already running. Use '(restart)' to restart!")))
+  (println "Starting the server. To restart call '(restart)'.")
+  (-> (beth.clj.server/start-server)
+      (save-server-handle)))
