@@ -14,8 +14,8 @@
             [beth.clj.mw.development :as development]
             [beth.clj.mw.error       :as error]
             [beth.clj.mw.exception   :as exception]
-            [beth.clj.mw.logging     :as logging]
             [beth.clj.mw.pages       :as pages]
+            [clojure.tools.logging   :as log]
             [net.cgrand.moustache    :as mou]
             [ring.middleware.resource :as resource]))
 
@@ -51,6 +51,27 @@
         (->> (template/render body)
              (assoc response :body))
         response))))
+
+
+;; ## Logging Middleware
+
+(defn wrap-logger
+  "Wrapper that will return a function that will get logging
+   information from the request, call the subsequent handlers and
+   afterwards print information on the request."
+  [handler]
+  (fn [request]
+    (let [{:keys [uri request-method]}  request
+          {:keys [status] :as response} (handler request)
+          req-method                    (-> request-method
+                                            (name)
+                                            (clojure.string/upper-case))
+          info-msg                      (str req-method " " uri " " status)]
+      (cond
+       (= status 404) (log/debug info-msg)
+       (= status 500) (log/error info-msg)
+       :else          (log/info info-msg))
+      response)))
 
 
 ;; ## Helper Functions
@@ -122,8 +143,7 @@
       (development/wrap-development-handler server-mode)
       (exception/wrap-exception-handler server-mode)
       (error/wrap-error-handler)
-      (logging/wrap-logger)
+      (wrap-logger)
       (wrap-response-handler)
       (wrap-config-handler)
       (http/wrap-ring-handler)))
-
