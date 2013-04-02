@@ -18,8 +18,8 @@
              (format "Exception handling %s request to %s"
                      request-method uri)))
 
-(config/with-config "beth.cfg"
-  (html/defsnippet stacktrace
+(defn load-stacktrace-snippet []
+  (html/snippet
     (format "%s/stacktrace.html" (config/lookup :path.snippets))
     [[:div#content]]
     [exception]
@@ -36,19 +36,20 @@
                                       (str (.getLineNumber e))))))
 
 
-;; ## Exception Handler
+  ;; ## Exception Handler
 
 (defn wrap-exception-handler
   "An exception catching (and printing) middleware that is only loaded
    in development mode."
   [handler server-mode]
-  (fn [request]
-    (try
-      (handler request)
-      (catch Exception e
-        (log-exception request e)
-        {:status    500
-         :exception e
-         :message   (if (= server-mode :dev)
-                      (stacktrace e)
-                      "")}))))
+  (let [stacktrace (load-stacktrace-snippet)]
+    (fn [request]
+      (try
+        (handler request)
+        (catch Exception e
+          (log-exception request e)
+          {:status    500
+           :exception e
+           :message   (if (= server-mode :dev)
+                        (stacktrace e)
+                        "")})))))

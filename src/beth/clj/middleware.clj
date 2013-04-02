@@ -114,8 +114,7 @@
    configuration. To retrieve them the ns-publics (list of public
    bindings of a namespace) is used."
   []
-  (let [c     (config/with-config "beth.cfg"
-                (config/lookup :app.routes))
+  (let [c     (config/lookup :app.routes)
         [n b] (clojure.string/split c #"/")]
     (require (symbol n))
     (-> (symbol n)

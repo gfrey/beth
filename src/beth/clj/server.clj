@@ -19,15 +19,15 @@
   ([]
      (start-server :dev))
   ([server-mode]
-     (org.apache.log4j.PropertyConfigurator/configure "log4j.properties")
-     (log/info (str "Starting the server in " server-mode " mode."))
-     (when (= server-mode :prod)
-       (log/info "Compiling ClojureScript")
-       (config/with-config "beth.cfg"
-         (cljsc/build :prod)))
-     (http/start-http-server
-      (mw/chain-middleware server-mode)
-      {:port 8080 :websocket true})))
+     (config/with-config "beth.cfg"
+       (org.apache.log4j.PropertyConfigurator/configure "log4j.properties")
+       (log/info (str "Starting the server in " server-mode " mode."))
+       (when (= server-mode :prod)
+         (log/info "Compiling ClojureScript")
+         (cljsc/build :prod))
+       (http/start-http-server
+        (mw/chain-middleware server-mode)
+        {:port 8080 :websocket true}))))
 
 (defn stop-server
   "Stop the aleph server by calling the function retured and stored when
