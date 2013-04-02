@@ -142,6 +142,12 @@
     (-> (html/html-resource file)
         (process-template))))
 
+(defn get-snippet
+  [path]
+  (-> (load-template path)
+      (html/select [:div#content :> html/any-node])
+      (remove-example-data)))
+
 (defn render
   "Will render the page nodes to an actual html string that can be
    served nicely."

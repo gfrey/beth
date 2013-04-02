@@ -86,15 +86,6 @@
       :headers {"Content-Type" "text/html"}
       content-key content}))
 
-(defn get-snippet
-  [path]
-  (let [root (-> (config/lookup :path.snippets)
-                 (clojure.java.io/resource))
-        file (clojure.java.io/file root path)]
-    (if (.isFile file)
-      (response 200 (template/process-template-file file))
-      (response 404 (format "Snippet %s does not exist!" path)))))
-
 
 ;; ## Route Dispatching
 
@@ -103,7 +94,8 @@
   (mou/app ["snippets" & path]
            (fn [_] (->> path
                        (clojure.string/join "/")
-                       (get-snippet)))))
+                       (template/get-snippet)
+                       (response 200)))))
 
 ;; The application routes are loaded from the file given in the
 ;; configuration.
