@@ -15,6 +15,7 @@
             [beth.clj.mw.error       :as error]
             [beth.clj.mw.exception   :as exception]
             [beth.clj.mw.pages       :as pages]
+            [clojure.data.json       :as json]
             [clojure.tools.logging   :as log]
             [net.cgrand.moustache    :as mou]
             [ring.middleware.content-type :as ctype]
@@ -49,9 +50,11 @@
   [handler]
   (fn [request]
     (let [{:keys [body] :as response} (handler request)]
-      (if (= (get-in response [:headers "Content-Type"]) "text/html")
-        (->> (template/render body)
-             (assoc response :body))
+      (case (get-in response [:headers "Content-Type"])
+        "text/html"        (->> (template/render body)
+                                (assoc response :body))
+        "application/json" (->> (json/write-str body)
+                                (assoc response :body))
         response))))
 
 
