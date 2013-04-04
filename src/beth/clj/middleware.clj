@@ -18,7 +18,8 @@
             [clojure.tools.logging   :as log]
             [net.cgrand.moustache    :as mou]
             [ring.middleware.content-type :as ctype]
-            [ring.middleware.resource :as resource]))
+            [ring.middleware.resource :as resource]
+            [ring.middleware.params  :as params]))
 
 
 ;; ## Configuration Handling
@@ -131,6 +132,7 @@
   [server-mode]
   (-> (get-routes)
       (pages/wrap-page-handler server-mode)
+      (params/wrap-params)
       (resource/wrap-resource "files")
       (development/wrap-development-handler server-mode)
       (exception/wrap-exception-handler server-mode)
