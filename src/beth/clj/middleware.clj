@@ -17,6 +17,7 @@
             [beth.clj.mw.pages       :as pages]
             [clojure.tools.logging   :as log]
             [net.cgrand.moustache    :as mou]
+            [ring.middleware.content-type :as ctype]
             [ring.middleware.resource :as resource]))
 
 
@@ -135,6 +136,7 @@
       (exception/wrap-exception-handler server-mode)
       (error/wrap-error-handler)
       (wrap-logger)
+      (ctype/wrap-content-type)
       (wrap-response-handler)
       (wrap-config-handler)
       (http/wrap-ring-handler)))
