@@ -57,13 +57,14 @@
 (defn get-snippet
   "Load the snippet for the given path, put it into the correct
    environment, and return an proper response."
-  [path]
+  [[container & path-segments]]
   (let [root (-> (config/lookup :path.snippets)
                  (clojure.java.io/resource))
+        path (clojure.string/join "/" path-segments)
         file (clojure.java.io/file root path)]
     (if (.isFile file)
       (-> (html/html-resource file)
-          (html/at [:html :body] (html/wrap :_within {:file "application.html"})
+          (html/at [:html :body] (html/wrap :_within {:file container})
                    [:html :body] (html/wrap :div {:id "content"}))
           (template/process-template)
           (create-response))
@@ -78,7 +79,7 @@
           path (->> (clojure.string/split uri #"/")
                     (remove empty?))]
       (if (= (first path) "preview")
-        (get-snippet (clojure.string/join "/" (rest path)))
+        (get-snippet (rest path))
         (handler request)))))
 
 
