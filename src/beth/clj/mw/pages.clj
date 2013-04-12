@@ -32,6 +32,14 @@
     (when (.isFile file)
       file)))
 
+(defn get-pagename
+  "Returns the name of the given page, i.e. the filename without path
+   and suffix."
+  [page]
+  (-> page
+      (.getName)
+      (clojure.string/replace-first #".html$" "")))
+
 (defn create-response
   "Creates a dummy response with the body set to the given file and status
    200."
@@ -74,14 +82,23 @@
        (apply html/append)
        (html/transform page [:body])))
 
+(defn find-injectables
+  "Find the injection configuration for the given mode and page. If no
+   configuration for the page exists the default will be used."
+  [pagename mode]
+  (if-let [key (config/has-key? :injector mode pagename)]
+    (config/lookup key)
+    (config/lookup :injector mode)))
+
 (defn fragment-injection
   "The dispatcher on the different things to inject."
-  [page mode]
-  (let [{:keys [css js script]} (config/lookup :injector mode)]
+  [page pagename mode]
+  (let [{:keys [css js script]} (find-injectables pagename mode)]
     (-> page
         (inject-css css)
         (inject-js js)
         (inject-script script))))
+
 
 ;; ## Page Handler
 ;; This will check whether the request matches a page and if so load
@@ -94,6 +111,6 @@
     (if-let [page (is-page? request)]
       (-> page
           (template/process-template-file)
-          (fragment-injection server-mode)
+          (fragment-injection (get-pagename page) server-mode)
           (create-response))
       (handler request))))

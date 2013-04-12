@@ -97,6 +97,15 @@
 ;; The following methods are required for accessing a configuraion
 ;; hash-map.
 
+(defn has-key?
+  [& segments]
+  (let [key (->> segments
+                 (map name)
+                 (clojure.string/join ".")
+                 (keyword))]
+    (when (contains? *config* key)
+      key)))
+
 (defn lookup
   "Get the key from the configuration hash-map. If a mode is given add
    it to the key. Throws an exception if the key can not be found in
