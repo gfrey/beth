@@ -8,19 +8,20 @@
 ;; after modifying it.
 
 (ns beth.clj.middleware
-  (:require [aleph.http              :as http]
-            [beth.clj.lib.config     :as config]
-            [beth.clj.lib.template   :as template]
+  (:require [aleph.http :as http]
+            [beth.clj.lib.config :as config]
+            [beth.clj.lib.template :as template]
             [beth.clj.mw.development :as development]
-            [beth.clj.mw.error       :as error]
-            [beth.clj.mw.exception   :as exception]
-            [beth.clj.mw.pages       :as pages]
-            [clojure.data.json       :as json]
-            [clojure.tools.logging   :as log]
-            [net.cgrand.moustache    :as mou]
+            [beth.clj.mw.error :as error]
+            [beth.clj.mw.exception :as exception]
+            [beth.clj.mw.pages :as pages]
+            [clojure.data.json :as json]
+            [clojure.tools.logging :as log]
+            [compojure.core :refer :all]
+            [compojure.route :as croute]
             [ring.middleware.content-type :as ctype]
             [ring.middleware.resource :as resource]
-            [ring.middleware.params  :as params]))
+            [ring.middleware.params :as params]))
 
 
 ;; ## Configuration Handling
@@ -95,12 +96,12 @@
 ;; ## Route Dispatching
 
 ;; The routing for requests to beth.
-(def system-routes
-  (mou/app ["snippets" & path]
-           (fn [_] (->> path
-                       (clojure.string/join "/")
-                       (template/get-snippet)
-                       (response 200)))))
+(defroutes system-routes
+           (GET "/snippets/:path" [path]
+             (->> path
+                  (clojure.string/join "/")
+                  (template/get-snippet)
+                  (response 200))))
 
 ;; The application routes are loaded from the file given in the
 ;; configuration.
@@ -119,9 +120,10 @@
         (get (symbol b)))))
 
 (defn get-routes []
-  (let [app-routes (get-application-routes)]
-    (mou/app ["app" &] app-routes
-             [&]       system-routes)))
+  (routes
+    (context "/app" [] (get-application-routes))
+    (context "/" [] system-routes)
+    (croute/not-found "not found")))
 
 
 ;; ## Middleware Chaining

@@ -11,7 +11,7 @@
                                                     com.sun.jdmk/jmxtools
                                                     com.sun.jmx/jmxri]]
                  [midje "1.7.0"]
-                 [net.cgrand/moustache "1.2.0-alpha2"]
+                 [compojure "1.4.0"]
                  [org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.28"]
                  [org.clojure/data.json "0.2.6"]
