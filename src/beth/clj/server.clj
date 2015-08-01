@@ -25,7 +25,7 @@
        (when (= server-mode :prod)
          (log/info "Compiling ClojureScript")
          (cljsc/build :prod))
-       (http/start-http-server
+       (http/start-server
         (mw/chain-middleware server-mode)
         {:port 8080 :websocket true}))))
 

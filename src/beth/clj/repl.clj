@@ -7,10 +7,9 @@
 
 (ns beth.clj.repl
   (:require [beth.clj.server]
-            [cemerick.piggieback          :as pback]
-            [cljs.repl                    :as cljsRepl]
-            [cljs.repl.browser            :as cljsBrowser]
-            [clojure.repl                 :as cRepl]
+            [cemerick.piggieback :as pback]
+            [cljs.repl.browser :as cljsBrowser]
+            [clojure.repl :as cRepl]
             [clojure.tools.namespace.repl :as nRepl]))
 
 ;; Don't reload this namespace! This makes sure the refresh function
@@ -22,16 +21,15 @@
 (defn cljs-repl
   []
   (pback/cljs-repl
-   :repl-env (doto (cljsBrowser/repl-env :port 9000)
-               cljsRepl/-setup)))
+    (cljsBrowser/repl-env)))
 
 (defn- save-server-handle
   "Internal function to manage the server handle. It is stored in an
    atom to not make the user fiddle with it."
   [handler]
   (if (fn? handler)
-      (swap! server (constantly handler))
-      (cRepl/pst)))
+    (swap! server (constantly handler))
+    (cRepl/pst)))
 
 (defn restart
   "Use this function to refresh the server, for example after changing
@@ -48,7 +46,7 @@
   []
   (when @server
     (throw
-     (Exception. "Server already running. Use '(restart)' to restart!")))
+      (Exception. "Server already running. Use '(restart)' to restart!")))
   (println "Starting the server. To restart call '(restart)'.")
   (-> (beth.clj.server/start-server)
       (save-server-handle)))

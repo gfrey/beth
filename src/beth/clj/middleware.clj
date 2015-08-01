@@ -143,5 +143,4 @@
       (wrap-logger)
       (resource/wrap-resource "files")
       (ctype/wrap-content-type)
-      (wrap-config-handler)
-      (http/wrap-ring-handler)))
+      (wrap-config-handler)))

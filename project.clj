@@ -2,26 +2,23 @@
   :description "Clojure[Script] WebApplication Development Framework"
   :url "https://github.com/gfrey/beth"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[aleph                       "0.3.0-beta16"]
-                 [com.cemerick/piggieback     "0.0.4"]
-                 [enlive                      "1.1.1"]
-                 [log4j/log4j                 "1.2.16"
-                                  :exclusions [javax.mail/mail
-                                               javax.jms/jms
-                                               com.sun.jdmk/jmxtools
-                                               com.sun.jmx/jmxri]]
-                 [midje                       "1.5.1"]
-                 [net.cgrand/moustache        "1.2.0-alpha2"]
-                 [org.clojure/clojure         "1.5.1"]
-                 [org.clojure/clojurescript   "0.0-1586"]
-                 [org.clojure/data.json       "0.2.1"]
-                 [org.clojure/google-closure-library-third-party "0.0-2029"]
-                 [org.clojure/tools.logging   "0.2.6"]
-                 [org.clojure/tools.namespace "0.2.3"]
-                 [ring/ring-core              "1.2.0-beta2"]]
+            :url  "http://www.eclipse.org/legal/epl-v10.html"}
+  :dependencies [[aleph "0.4.0"]
+
+                 [enlive "1.1.6"]
+                 [log4j/log4j "1.2.16" :exclusions [javax.mail/mail
+                                                    javax.jms/jms
+                                                    com.sun.jdmk/jmxtools
+                                                    com.sun.jmx/jmxri]]
+                 [midje "1.7.0"]
+                 [net.cgrand/moustache "1.2.0-alpha2"]
+                 [org.clojure/clojure "1.7.0"]
+                 [org.clojure/clojurescript "1.7.28"]
+                 [org.clojure/data.json "0.2.6"]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [org.clojure/tools.namespace "0.2.11"]
+                 [ring/ring-core "1.4.0"]]
+  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
+                                  [org.clojure/tools.nrepl "0.2.10"]]}}
   :main beth.clj.core
-  :repl-options {:init-ns beth.clj.repl
-                 :init (beth.clj.repl/start)
-                 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
   :resource-paths ["resources"])
