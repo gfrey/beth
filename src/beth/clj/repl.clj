@@ -41,6 +41,12 @@
   (-> (nRepl/refresh :after 'beth.clj.server/start-server)
       (save-server-handle)))
 
+(defn stop
+  "Stop the running server"
+  []
+  (when @server
+    (.close @server)))
+
 (defn start
   "Run the server and print usage information."
   []
