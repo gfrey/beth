@@ -27,7 +27,7 @@
   "Internal function to manage the server handle. It is stored in an
    atom to not make the user fiddle with it."
   [handler]
-  (if (fn? handler)
+  (if (instance? java.io.Closeable handler)
     (swap! server (constantly handler))
     (cRepl/pst)))
 
@@ -37,7 +37,7 @@
    running server to work properly."
   []
   (when @server
-    (@server))
+    (.close @server))
   (-> (nRepl/refresh :after 'beth.clj.server/start-server)
       (save-server-handle)))
 
