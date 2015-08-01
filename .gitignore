@@ -11,4 +11,8 @@ beth.log
 .lein-failures
 .lein-plugins
 .repl/
+.nrepl-port
 /resources/files/js-dev
+/resources/files/js
+.idea
+*.iml
